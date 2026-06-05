@@ -45,3 +45,4 @@
 /home/angelosiq/Projects/personal/e-commerce/bin/Debug/net10.0/NSwag.Generation.dll
 /home/angelosiq/Projects/personal/e-commerce/bin/Debug/net10.0/NSwag.Generation.AspNetCore.dll
 /home/angelosiq/Projects/personal/e-commerce/bin/Debug/net10.0/YamlDotNet.dll
+/home/angelosiq/Projects/personal/e-commerce/obj/Debug/net10.0/e-commerce.sourcelink.json
