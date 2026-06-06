@@ -28,5 +28,7 @@ public class ProductRepositoryMemory : IProductRepository
 {
     private readonly List<Product> _products = [];
 
+    public void Add(Product product) => _products.Add(product);
+
     public Task<List<Product>> GetProducts() => Task.FromResult(_products);
 }
