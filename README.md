@@ -30,6 +30,7 @@ src/
   Application/
     UseCases/
       GetProducts.cs            # Use case, depends only on domain interfaces
+      AddProduct.cs             # Use case, depends only on domain interfaces
   Infra/
     Controller/
       ProductController.cs      # Registers routes via IHttpServer
@@ -60,7 +61,7 @@ Domain  ←  Application  ←  Infra  ←  Api.cs
 |---|---|
 | `AppDbContext` | Scoped (one per request, via `AddDbContext`) |
 | `IProductRepository` / `ProductRepositoryDatabase` | Scoped |
-| `GetProducts` | Scoped |
+| MediatR handlers (`GetProductsHandler`, `AddProductHandler`, …) | Transient (via MediatR assembly scanning) |
 
 Each route handler creates an `AsyncServiceScope` so every request gets fresh scoped instances:
 
@@ -68,7 +69,13 @@ Each route handler creates an `AsyncServiceScope` so every request gets fresh sc
 httpServer.Route<List<GetProductsOutput>>("get", "/products", async (@params) =>
 {
     await using AsyncServiceScope scope = sp.CreateAsyncScope();
-    return await scope.ServiceProvider.GetRequiredService<GetProducts>().Execute();
+    return await scope.ServiceProvider.GetRequiredService<IMediator>().Send(new GetProductsQuery());
+});
+
+httpServer.Route<AddProductCommand, AddProductOutput>("post", "/products", async (@params, body) =>
+{
+    await using AsyncServiceScope scope = sp.CreateAsyncScope();
+    return await scope.ServiceProvider.GetRequiredService<IMediator>().Send(body);
 });
 ```
 

@@ -59,6 +59,29 @@ public class ProductRepositoryMemoryTests
         var second = await repository.GetProducts();
         Assert.HasCount(first.Count, second);
     }
+
+    [TestMethod]
+    public async Task AddProduct_AddsProductToList()
+    {
+        var repository = new ProductRepositoryMemory();
+        var product = new Product { ProductId = Guid.NewGuid(), Name = "Laptop", Description = "Gaming laptop", Price = 2999.99m };
+        await repository.AddProduct(product);
+        var result = await repository.GetProducts();
+        Assert.HasCount(1, result);
+    }
+
+    [TestMethod]
+    public async Task AddProduct_PreservesAllFields()
+    {
+        var repository = new ProductRepositoryMemory();
+        var expectedId = Guid.NewGuid();
+        await repository.AddProduct(new Product { ProductId = expectedId, Name = "Monitor", Description = "4K monitor", Price = 799.99m });
+        var result = await repository.GetProducts();
+        Assert.AreEqual(expectedId, result[0].ProductId);
+        Assert.AreEqual("Monitor", result[0].Name);
+        Assert.AreEqual("4K monitor", result[0].Description);
+        Assert.AreEqual(799.99m, result[0].Price);
+    }
 }
 
 [TestClass]
@@ -117,5 +140,29 @@ public class ProductRepositoryDatabaseTests
         Assert.AreEqual("Monitor", product.Name);
         Assert.AreEqual("4K monitor", product.Description);
         Assert.AreEqual(799.99m, product.Price);
+    }
+
+    [TestMethod]
+    public async Task AddProduct_PersistsToDatabase()
+    {
+        using var context = CreateContext(nameof(AddProduct_PersistsToDatabase));
+        var repository = new ProductRepositoryDatabase(context);
+        await repository.AddProduct(new Product { ProductId = Guid.NewGuid(), Name = "Laptop", Description = "Gaming laptop", Price = 2999.99m });
+        var result = await repository.GetProducts();
+        Assert.HasCount(1, result);
+    }
+
+    [TestMethod]
+    public async Task AddProduct_PreservesAllFields()
+    {
+        using var context = CreateContext(nameof(AddProduct_PreservesAllFields));
+        var repository = new ProductRepositoryDatabase(context);
+        var expectedId = Guid.NewGuid();
+        await repository.AddProduct(new Product { ProductId = expectedId, Name = "Monitor", Description = "4K monitor", Price = 799.99m });
+        var result = await repository.GetProducts();
+        Assert.AreEqual(expectedId, result[0].ProductId);
+        Assert.AreEqual("Monitor", result[0].Name);
+        Assert.AreEqual("4K monitor", result[0].Description);
+        Assert.AreEqual(799.99m, result[0].Price);
     }
 }

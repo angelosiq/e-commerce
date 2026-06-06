@@ -7,6 +7,7 @@ namespace ECommerce.Infra.Repository;
 internal interface IProductRepository
 {
     public Task<List<Product>> GetProducts();
+    public Task AddProduct(Product product);
 }
 
 internal class ProductRepositoryDatabase : IProductRepository
@@ -22,6 +23,12 @@ internal class ProductRepositoryDatabase : IProductRepository
     {
         return await _context.Products.ToListAsync();
     }
+
+    public async Task AddProduct(Product product)
+    {
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+    }
 }
 
 internal class ProductRepositoryMemory : IProductRepository
@@ -31,4 +38,10 @@ internal class ProductRepositoryMemory : IProductRepository
     public void Add(Product product) => _products.Add(product);
 
     public Task<List<Product>> GetProducts() => Task.FromResult(_products);
+
+    public Task AddProduct(Product product)
+    {
+        _products.Add(product);
+        return Task.CompletedTask;
+    }
 }

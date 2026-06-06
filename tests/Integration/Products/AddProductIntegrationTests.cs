@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using ECommerce.Application.UseCases;
-using ECommerce.Domain;
 using ECommerce.Infra.Controllers;
 using ECommerce.Infra.Database;
 using ECommerce.Infra.Http;
@@ -15,12 +14,13 @@ namespace Integration.Products;
 
 [TestClass]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001", Justification = "Disposed in [TestCleanup]")]
-public class GetProductsIntegrationTests
+public class AddProductIntegrationTests
 {
     private AppDbContext _dbContext = null!;
     private HttpClient _client = null!;
     private AspNetCoreAdapter _adapter = null!;
 
+    private sealed record ProductInput(string Name, string Description, decimal Price);
     private sealed record ProductOutput(Guid ProductId, string Name, string Description, decimal Price);
 
     [TestInitialize]
@@ -55,54 +55,57 @@ public class GetProductsIntegrationTests
     }
 
     [TestMethod]
-    public async Task GetProducts_WhenDatabaseIsEmpty_Returns200WithEmptyList()
+    public async Task AddProduct_WithValidBody_Returns200WithCreatedProduct()
     {
-        var response = await _client.GetAsync("/products");
+        var body = new ProductInput("Laptop", "Gaming laptop", 2999.99m);
+
+        var response = await _client.PostAsJsonAsync("/products", body);
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ProductOutput>>();
-        Assert.IsNotNull(body);
-        Assert.IsEmpty(body);
+        var result = await response.Content.ReadFromJsonAsync<ProductOutput>();
+        Assert.IsNotNull(result);
+        Assert.AreNotEqual(Guid.Empty, result.ProductId);
+        Assert.AreEqual(body.Name, result.Name);
+        Assert.AreEqual(body.Description, result.Description);
+        Assert.AreEqual(body.Price, result.Price);
     }
 
     [TestMethod]
-    public async Task GetProducts_WhenOneProductExists_Returns200WithThatProduct()
+    public async Task AddProduct_WithValidBody_ProductAppearsInGetProducts()
     {
-        var product = new Product
-        {
-            ProductId = Guid.NewGuid(),
-            Name = "Laptop",
-            Description = "Gaming laptop",
-            Price = 2999.99m,
-        };
-        _dbContext.Products.Add(product);
-        await _dbContext.SaveChangesAsync();
+        var body = new ProductInput("Mouse", "Wireless mouse", 49.99m);
+        await _client.PostAsJsonAsync("/products", body);
 
         var response = await _client.GetAsync("/products");
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ProductOutput>>();
-        Assert.HasCount(1, body!);
-        Assert.AreEqual(product.ProductId, body![0].ProductId);
-        Assert.AreEqual(product.Name, body[0].Name);
-        Assert.AreEqual(product.Description, body[0].Description);
-        Assert.AreEqual(product.Price, body[0].Price);
+        var products = await response.Content.ReadFromJsonAsync<List<ProductOutput>>();
+        Assert.HasCount(1, products!);
+        Assert.AreEqual(body.Name, products![0].Name);
     }
 
     [TestMethod]
-    public async Task GetProducts_WhenMultipleProductsExist_ReturnsAllProducts()
+    public async Task AddProduct_CalledTwice_ReturnsDifferentIds()
     {
-        _dbContext.Products.AddRange(
-            new Product { ProductId = Guid.NewGuid(), Name = "Laptop", Description = "Gaming laptop", Price = 2999.99m },
-            new Product { ProductId = Guid.NewGuid(), Name = "Mouse", Description = "Wireless mouse", Price = 49.99m },
-            new Product { ProductId = Guid.NewGuid(), Name = "Keyboard", Description = "Mechanical keyboard", Price = 149.99m }
-        );
-        await _dbContext.SaveChangesAsync();
+        var first = await _client.PostAsJsonAsync("/products", new ProductInput("Laptop", "Gaming laptop", 2999.99m));
+        var second = await _client.PostAsJsonAsync("/products", new ProductInput("Mouse", "Wireless mouse", 49.99m));
+
+        var firstResult = await first.Content.ReadFromJsonAsync<ProductOutput>();
+        var secondResult = await second.Content.ReadFromJsonAsync<ProductOutput>();
+
+        Assert.AreNotEqual(firstResult!.ProductId, secondResult!.ProductId);
+    }
+
+    [TestMethod]
+    public async Task AddProduct_MultipleProducts_AllAppearInGetProducts()
+    {
+        await _client.PostAsJsonAsync("/products", new ProductInput("Laptop", "Gaming laptop", 2999.99m));
+        await _client.PostAsJsonAsync("/products", new ProductInput("Mouse", "Wireless mouse", 49.99m));
+        await _client.PostAsJsonAsync("/products", new ProductInput("Keyboard", "Mechanical keyboard", 149.99m));
 
         var response = await _client.GetAsync("/products");
+        var products = await response.Content.ReadFromJsonAsync<List<ProductOutput>>();
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<List<ProductOutput>>();
-        Assert.HasCount(3, body!);
+        Assert.HasCount(3, products!);
     }
 }

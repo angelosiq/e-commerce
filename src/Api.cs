@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 WebApplicationBuilder builder = WebApplication.CreateBuilder();
 builder.Services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase("ecommerce"));
 builder.Services.AddScoped<IProductRepository, ProductRepositoryDatabase>();
-builder.Services.AddScoped<GetProducts>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductsHandler>());
 AspNetCoreAdapter httpServer = new(builder);
 _ = new ProductController(httpServer, httpServer.App.Services);
 await httpServer.Run();

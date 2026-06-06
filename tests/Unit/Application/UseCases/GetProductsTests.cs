@@ -11,8 +11,8 @@ public class GetProductsTests
     public async Task Execute_WhenRepositoryIsEmpty_ReturnsEmptyList()
     {
         var repository = new ProductRepositoryMemory();
-        var useCase = new GetProducts(repository);
-        var result = await useCase.Execute();
+        var handler = new GetProductsHandler(repository);
+        var result = await handler.Handle(new GetProductsQuery(), default);
         Assert.IsEmpty(result);
     }
 
@@ -34,8 +34,8 @@ public class GetProductsTests
             Description = "Wireless mouse",
             Price = 49.99m
         });
-        var useCase = new GetProducts(repository);
-        var result = await useCase.Execute();
+        var handler = new GetProductsHandler(repository);
+        var result = await handler.Handle(new GetProductsQuery(), default);
         Assert.HasCount(2, result);
     }
 
@@ -51,8 +51,8 @@ public class GetProductsTests
             Description = "Mechanical keyboard",
             Price = 149.99m
         });
-        var useCase = new GetProducts(repository);
-        var result = await useCase.Execute();
+        var handler = new GetProductsHandler(repository);
+        var result = await handler.Handle(new GetProductsQuery(), default);
         Assert.HasCount(1, result);
         var output = result[0];
         Assert.AreEqual(expectedId, output.ProductId);
