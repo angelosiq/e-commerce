@@ -15,4 +15,11 @@
     </PackageReference>
   </ItemGroup>
 
+
+  <!-- Auto-install Husky.Net git hooks after dotnet restore. Set HUSKY=0 to skip (e.g. in CI). -->
+  <Target Name="husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">
+    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  </Target>
+
 </Project>

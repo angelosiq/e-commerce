@@ -1,0 +1,26 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "lint",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [
+            "build",
+            "e-commerce.slnx",
+            "--no-incremental",
+            "-p:TreatWarningsAsErrors=true"
+         ]
+      },
+      {
+         "name": "test",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [
+            "test",
+            "e-commerce.slnx",
+            "--no-build"
+         ]
+      }
+   ]
+}
