@@ -21,6 +21,33 @@
             "e-commerce.slnx",
             "--no-build"
          ]
+      },
+      {
+         "name": "commit-message-lint",
+         "group": "commit-msg",
+         "command": "sh",
+         "args": [".husky/scripts/commit-msg-lint.sh", "${args}"]
+      },
+      {
+         "name": "lint-pre-push",
+         "group": "pre-push",
+         "command": "dotnet",
+         "args": [
+            "build",
+            "e-commerce.slnx",
+            "--no-incremental",
+            "-p:TreatWarningsAsErrors=true"
+         ]
+      },
+      {
+         "name": "test-pre-push",
+         "group": "pre-push",
+         "command": "dotnet",
+         "args": [
+            "test",
+            "e-commerce.slnx",
+            "--no-build"
+         ]
       }
    ]
 }
