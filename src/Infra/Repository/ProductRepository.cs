@@ -1,15 +1,15 @@
-using e_commerce.Domain;
-using e_commerce.Infra.Database;
+using ECommerce.Domain;
+using ECommerce.Infra.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace e_commerce.Infra.Repository;
+namespace ECommerce.Infra.Repository;
 
-public interface IProductRepository
+internal interface IProductRepository
 {
-    Task<List<Product>> GetProducts();
+    public Task<List<Product>> GetProducts();
 }
 
-public class ProductRepositoryDatabase : IProductRepository
+internal class ProductRepositoryDatabase : IProductRepository
 {
     private readonly AppDbContext _context;
 
@@ -24,7 +24,7 @@ public class ProductRepositoryDatabase : IProductRepository
     }
 }
 
-public class ProductRepositoryMemory : IProductRepository
+internal class ProductRepositoryMemory : IProductRepository
 {
     private readonly List<Product> _products = [];
 

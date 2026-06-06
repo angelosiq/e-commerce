@@ -1,13 +1,13 @@
-using e_commerce.Application.UseCase;
-using e_commerce.Infra.Http;
+using ECommerce.Application.UseCase;
+using ECommerce.Infra.Http;
 
-namespace e_commerce.Infra.Controllers;
+namespace ECommerce.Infra.Controllers;
 
-public class ProductController
+internal class ProductController
 {
     public ProductController(IHttpServer httpServer, GetProducts getProducts)
     {
-        httpServer.Route<List<GetProducts.Output>>("get", "/products", async (@params) =>
+        httpServer.Route<List<GetProductsOutput>>("get", "/products", async (@params) =>
         {
             return await getProducts.Execute();
         });

@@ -1,0 +1,18 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- Enable all built-in .NET SDK analyzers (CA*, IDE*) -->
+    <AnalysisMode>All</AnalysisMode>
+    <!-- Enforce .editorconfig IDE* style rules at build time -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Roslynator: ~500 additional analyzers, formatters, and refactorings -->
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

@@ -1,28 +1,28 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace e_commerce.Infra.Http;
+namespace ECommerce.Infra.Http;
 
-public interface IHttpServer
+internal interface IHttpServer
 {
-    void Route<TResponse>(string method, string url,
+    public void Route<TResponse>(string method, string url,
         Func<IReadOnlyDictionary<string, string?>, Task<TResponse>> handler);
 
-    void Route<TRequest, TResponse>(string method, string url,
+    public void Route<TRequest, TResponse>(string method, string url,
         Func<IReadOnlyDictionary<string, string?>, TRequest, Task<TResponse>> handler)
         where TRequest : notnull;
 
-    Task Run();
+    public Task Run();
 }
 
-public class AspNetCoreAdapter : IHttpServer
+internal class AspNetCoreAdapter : IHttpServer
 {
     private readonly WebApplication _app;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public AspNetCoreAdapter()
     {
-        var builder = WebApplication.CreateBuilder();
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
             p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         builder.Services.AddEndpointsApiExplorer();
@@ -39,15 +39,15 @@ public class AspNetCoreAdapter : IHttpServer
         Func<IReadOnlyDictionary<string, string?>, TRequest, Task<TResponse>> handler)
         where TRequest : notnull
     {
-        var pattern = Regex.Replace(url, @":(\w+)", "{$1}");
+        string pattern = Regex.Replace(url, @":(\w+)", "{$1}");
         Delegate routeHandler = async (HttpContext ctx) =>
         {
             try
             {
-                var @params = ctx.Request.RouteValues
+                Dictionary<string, string?> @params = ctx.Request.RouteValues
                     .ToDictionary(kv => kv.Key, kv => kv.Value?.ToString());
-                var input = (await ctx.Request.ReadFromJsonAsync<TRequest>(Json))!;
-                var output = await handler(@params, input);
+                TRequest input = (await ctx.Request.ReadFromJsonAsync<TRequest>(Json))!;
+                TResponse output = await handler(@params, input);
                 await ctx.Response.WriteAsJsonAsync(output, Json);
             }
             catch (Exception e)
@@ -66,14 +66,14 @@ public class AspNetCoreAdapter : IHttpServer
         string method, string url,
         Func<IReadOnlyDictionary<string, string?>, Task<TResponse>> handler)
     {
-        var pattern = Regex.Replace(url, @":(\w+)", "{$1}");
+        string pattern = Regex.Replace(url, @":(\w+)", "{$1}");
         Delegate routeHandler = async (HttpContext ctx) =>
         {
             try
             {
-                var @params = ctx.Request.RouteValues
+                Dictionary<string, string?> @params = ctx.Request.RouteValues
                     .ToDictionary(kv => kv.Key, kv => kv.Value?.ToString());
-                var output = await handler(@params);
+                TResponse output = await handler(@params);
                 await ctx.Response.WriteAsJsonAsync(output, Json);
             }
             catch (Exception e)

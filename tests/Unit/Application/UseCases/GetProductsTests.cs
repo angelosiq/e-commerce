@@ -1,6 +1,6 @@
-using e_commerce.Application.UseCase;
-using e_commerce.Domain;
-using e_commerce.Infra.Repository;
+using ECommerce.Application.UseCase;
+using ECommerce.Domain;
+using ECommerce.Infra.Repository;
 
 namespace Unit.Application.UseCases;
 
@@ -13,7 +13,7 @@ public class GetProductsTests
         var repository = new ProductRepositoryMemory();
         var useCase = new GetProducts(repository);
         var result = await useCase.Execute();
-        Assert.AreEqual(0, result.Count);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class GetProductsTests
         });
         var useCase = new GetProducts(repository);
         var result = await useCase.Execute();
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -53,7 +53,7 @@ public class GetProductsTests
         });
         var useCase = new GetProducts(repository);
         var result = await useCase.Execute();
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         var output = result[0];
         Assert.AreEqual(expectedId, output.ProductId);
         Assert.AreEqual("Keyboard", output.Name);

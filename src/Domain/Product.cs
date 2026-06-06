@@ -1,6 +1,6 @@
-namespace e_commerce.Domain;
+namespace ECommerce.Domain;
 
-public class Product
+internal class Product
 {
     public Guid ProductId { get; set; }
     public string Name { get; set; } = string.Empty;

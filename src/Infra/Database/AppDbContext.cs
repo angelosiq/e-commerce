@@ -1,9 +1,9 @@
-using e_commerce.Domain;
+using ECommerce.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace e_commerce.Infra.Database;
+namespace ECommerce.Infra.Database;
 
-public class AppDbContext : DbContext
+internal class AppDbContext : DbContext
 {
     public DbSet<Product> Products => Set<Product>();
 
