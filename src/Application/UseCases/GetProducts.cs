@@ -1,7 +1,7 @@
 using ECommerce.Domain;
 using ECommerce.Infra.Repository;
 
-namespace ECommerce.Application.UseCase;
+namespace ECommerce.Application.UseCases;
 
 internal class GetProducts
 {

@@ -1,4 +1,4 @@
-using ECommerce.Application.UseCase;
+using ECommerce.Application.UseCases;
 using ECommerce.Domain;
 using ECommerce.Infra.Repository;
 

@@ -1,4 +1,4 @@
-using ECommerce.Application.UseCase;
+using ECommerce.Application.UseCases;
 using ECommerce.Infra.Controllers;
 using ECommerce.Infra.Database;
 using ECommerce.Infra.Http;

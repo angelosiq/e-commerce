@@ -17,21 +17,22 @@ internal interface IHttpServer
 
 internal class AspNetCoreAdapter : IHttpServer
 {
-    private readonly WebApplication _app;
+    internal WebApplication App { get; }
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    public AspNetCoreAdapter()
+    public AspNetCoreAdapter() : this(WebApplication.CreateBuilder()) { }
+
+    internal AspNetCoreAdapter(WebApplicationBuilder builder)
     {
-        WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
             p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApiDocument();
-        _app = builder.Build();
-        _app.UseOpenApi();
-        _app.UseSwaggerUi();
-        _app.UseHttpsRedirection();
-        _app.UseCors();
+        App = builder.Build();
+        App.UseOpenApi();
+        App.UseSwaggerUi();
+        App.UseHttpsRedirection();
+        App.UseCors();
     }
 
     public void Route<TRequest, TResponse>(
@@ -56,7 +57,7 @@ internal class AspNetCoreAdapter : IHttpServer
                 await ctx.Response.WriteAsJsonAsync(new { message = e.Message }, Json);
             }
         };
-        _app.MapMethods(pattern, new[] { method.ToUpperInvariant() }, routeHandler)
+        App.MapMethods(pattern, new[] { method.ToUpperInvariant() }, routeHandler)
         .Accepts<TRequest>("application/json")
         .Produces<TResponse>()
         .Produces(422);
@@ -82,10 +83,10 @@ internal class AspNetCoreAdapter : IHttpServer
                 await ctx.Response.WriteAsJsonAsync(new { message = e.Message }, Json);
             }
         };
-        _app.MapMethods(pattern, new[] { method.ToUpperInvariant() }, routeHandler)
+        App.MapMethods(pattern, new[] { method.ToUpperInvariant() }, routeHandler)
         .Produces<TResponse>()
         .Produces(422);
     }
 
-    public async Task Run() => await _app.RunAsync();
+    public async Task Run() => await App.RunAsync();
 }
