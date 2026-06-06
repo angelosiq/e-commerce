@@ -82,10 +82,9 @@ httpServer.Route<AddProductCommand, AddProductOutput>("post", "/products", async
 ## Adding a new endpoint
 
 1. Add the domain entity to `src/Domain/` if needed.
-2. Add a use case class to `src/Application/UseCases/`.
-3. Register it in `Api.cs` with the appropriate lifetime (`AddScoped<MyUseCase>()`).
-4. Add a controller to `src/Infra/Controller/` that registers the route in its constructor.
-5. Wire it up in `Api.cs`: `_ = new MyController(httpServer, httpServer.App.Services);`
+2. Add a use case class to `src/Application/UseCases/` — implement `IRequestHandler<TCommand, TResponse>`. MediatR picks it up automatically via assembly scanning; no registration in `Api.cs` is required.
+3. Add the route in `src/Infra/Controller/ProductController.cs` (or a new controller class) using `httpServer.Route(...)`.
+4. If you created a new controller class, instantiate it in `Api.cs`: `_ = new MyController(httpServer, httpServer.App.Services);`
 
 ## Git hooks
 
