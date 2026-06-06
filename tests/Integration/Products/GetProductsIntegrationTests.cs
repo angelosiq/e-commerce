@@ -9,6 +9,7 @@ using ECommerce.Infra.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Integration.Products;
 
@@ -33,11 +34,12 @@ public class GetProductsIntegrationTests
 
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
-        _adapter = new AspNetCoreAdapter(builder);
+        builder.Services.AddSingleton(_dbContext);
+        builder.Services.AddScoped<IProductRepository, ProductRepositoryDatabase>();
+        builder.Services.AddScoped<GetProducts>();
 
-        var repository = new ProductRepositoryDatabase(_dbContext);
-        var getProducts = new GetProducts(repository);
-        _ = new ProductController(_adapter, getProducts);
+        _adapter = new AspNetCoreAdapter(builder);
+        _ = new ProductController(_adapter, _adapter.App.Services);
 
         _adapter.App.StartAsync().GetAwaiter().GetResult();
         _client = _adapter.App.GetTestServer().CreateClient();
