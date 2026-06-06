@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/tests/">
     <Project Path="tests/Unit/Unit.csproj" />
+    <Project Path="tests/Integration/Integration.csproj" />
   </Folder>
   <Project Path="e-commerce.csproj" />
 </Solution>
